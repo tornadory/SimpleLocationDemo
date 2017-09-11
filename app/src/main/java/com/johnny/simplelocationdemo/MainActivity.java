@@ -7,6 +7,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -29,7 +30,7 @@ import java.net.URL;
 public class MainActivity extends AppCompatActivity {
     private ProgressDialog progress;
     TextView locInfo;
-    LocationManager mLocationManager;
+//    LocationManager mLocationManager;
 
     private AMapLocationClient locationClient = null;
     private AMapLocationClientOption locationOption = null;
@@ -41,7 +42,9 @@ public class MainActivity extends AppCompatActivity {
 
         locInfo = (TextView)findViewById(R.id.locInfo);
 
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        Log.d("simplelocationservice", "try to start service");
 
         startService(new Intent(getBaseContext(), SimpleLocationService.class));
 
