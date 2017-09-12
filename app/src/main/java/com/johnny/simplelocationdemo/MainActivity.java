@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,14 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.amap.api.maps2d.AMap;
+import com.amap.api.maps2d.CameraUpdateFactory;
+import com.amap.api.maps2d.LocationSource;
+import com.amap.api.maps2d.MapView;
+import com.amap.api.maps2d.UiSettings;
+import com.amap.api.maps2d.model.BitmapDescriptorFactory;
+import com.amap.api.maps2d.model.LatLng;
+import com.amap.api.maps2d.model.MarkerOptions;
 
 import org.json.*;
 
@@ -28,6 +37,10 @@ import java.net.URL;
 
 
 public class MainActivity extends AppCompatActivity {
+    //显示地图需要的变量
+//    private MapView mapView;//地图控件
+//    private AMap aMap;//地图对象
+
     private ProgressDialog progress;
     TextView locInfo;
 //    LocationManager mLocationManager;
@@ -44,18 +57,60 @@ public class MainActivity extends AppCompatActivity {
 
 //        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
+        //显示地图
+//        mapView = (MapView) findViewById(R.id.map);
+        //必须要写
+//        mapView.onCreate(savedInstanceState);
+        //获取地图对象
+//        aMap = mapView.getMap();
+
+        //设置显示定位按钮 并且可以点击
+//        UiSettings settings = aMap.getUiSettings();
+        //设置定位监听
+//        aMap.setLocationSource(this);
+        // 是否显示定位按钮
+//        settings.setMyLocationButtonEnabled(true);
+        // 是否可触发定位并显示定位层
+//        aMap.setMyLocationEnabled(true);
+
+
+
         Log.d("simplelocationservice", "try to start service");
 
-        startService(new Intent(getBaseContext(), SimpleLocationService.class));
+
+        //startService(new Intent(getBaseContext(), SimpleLocationService.class));
 
         //初始化定位
-        initLocation();
+//        initLocation();
+
+        //aMap.moveCamera(new CameraUpdateFactory(new LatLng(120.1, 31.2)));
+
+        //startLocation();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         //mLocationManager.requestLocationUpdates();
+//        mapView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+//        mapView.onPause();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+//        mapView.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        mapView.onDestroy();
     }
 
     /**
@@ -122,11 +177,38 @@ public class MainActivity extends AppCompatActivity {
                 //解析定位结果，
                 String result = sb.toString();
                 locInfo.setText(result);
+
+//                aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+//                aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
+//                locationListener.onLocationChanged(location);
+//                aMap.addMarker(getMarkerOptions(location));
+
             } else {
                 locInfo.setText("定位失败，loc is null");
             }
         }
     };
+
+    //自定义一个图钉，并且设置图标，当我们点击图钉时，显示设置的信息
+    private MarkerOptions getMarkerOptions(AMapLocation amapLocation) {
+        //设置图钉选项
+        MarkerOptions options = new MarkerOptions();
+        //图标
+        //options.icon(BitmapDescriptorFactory.fromResource(R.mipmap.fire));
+        //位置
+        options.position(new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude()));
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(amapLocation.getCountry() + "" + amapLocation.getProvince() + "" + amapLocation.getCity() +  "" + amapLocation.getDistrict() + "" + amapLocation.getStreet() + "" + amapLocation.getStreetNum());
+        //标题
+        options.title(buffer.toString());
+        //子标题
+        options.snippet("这里好火");
+        //设置多少帧刷新一次图片资源
+        options.period(60);
+
+        return options;
+
+    }
 
     private AMapLocationClientOption getDefaultOption(){
         AMapLocationClientOption mOption = new AMapLocationClientOption();
@@ -244,7 +326,8 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     public  void getLocation(View View){
-        startLocation();
+        //startLocation();
+        startActivity(new Intent(this, MapActivity.class));
     }
 
     public void sendPostRequest(View View) {
@@ -254,6 +337,7 @@ public class MainActivity extends AppCompatActivity {
     public void sendGetRequest(View View) {
         new GetClass(this).execute();
     }
+
 
     private class PostClass extends AsyncTask<String, Void, Void> {
 
@@ -404,4 +488,6 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
     }
+
+
 }

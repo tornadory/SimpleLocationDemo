@@ -19,7 +19,7 @@ import com.amap.api.location.AMapLocationListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class SimpleLocationService extends Service implements LocationListener {
+public class SimpleLocationService extends Service implements LocationListener, AMapLocationListener {
     private AMapLocationClient locationClient = null;
     private AMapLocationClientOption locationOption = null;
 
@@ -72,7 +72,8 @@ public class SimpleLocationService extends Service implements LocationListener {
         //设置定位参数
         locationClient.setLocationOption(locationOption);
         // 设置定位监听
-        locationClient.setLocationListener(locationListener);
+//        locationClient.setLocationListener(locationListener);
+        locationClient.setLocationListener(this);
     }
 
     private void startLocation(){
@@ -80,54 +81,54 @@ public class SimpleLocationService extends Service implements LocationListener {
         locationClient.startLocation();
     }
 
-    AMapLocationListener locationListener = new AMapLocationListener() {
-        @SuppressLint("LongLogTag")
-        @Override
-        public void onLocationChanged(AMapLocation location) {
-            if (null != location) {
-
-                StringBuffer sb = new StringBuffer();
-                //errCode等于0代表定位成功，其他的为定位失败，具体的可以参照官网定位错误码说明
-                if(location.getErrorCode() == 0){
-                    sb.append("定位成功" + "\n");
-                    sb.append("定位类型: " + location.getLocationType() + "\n");
-                    sb.append("经    度    : " + location.getLongitude() + "\n");
-                    sb.append("纬    度    : " + location.getLatitude() + "\n");
-                    sb.append("精    度    : " + location.getAccuracy() + "米" + "\n");
-                    sb.append("提供者    : " + location.getProvider() + "\n");
-
-                    sb.append("速    度    : " + location.getSpeed() + "米/秒" + "\n");
-                    sb.append("角    度    : " + location.getBearing() + "\n");
-                    // 获取当前提供定位服务的卫星个数
-                    sb.append("星    数    : " + location.getSatellites() + "\n");
-                    sb.append("国    家    : " + location.getCountry() + "\n");
-                    sb.append("省            : " + location.getProvince() + "\n");
-                    sb.append("市            : " + location.getCity() + "\n");
-                    sb.append("城市编码 : " + location.getCityCode() + "\n");
-                    sb.append("区            : " + location.getDistrict() + "\n");
-                    sb.append("区域 码   : " + location.getAdCode() + "\n");
-                    sb.append("地    址    : " + location.getAddress() + "\n");
-                    sb.append("兴趣点    : " + location.getPoiName() + "\n");
-                    //定位完成的时间
-                    sb.append("定位时间: " + Utils.formatUTC(location.getTime(), "yyyy-MM-dd HH:mm:ss") + "\n");
-                } else {
-                    //定位失败
-                    sb.append("定位失败" + "\n");
-                    sb.append("错误码:" + location.getErrorCode() + "\n");
-                    sb.append("错误信息:" + location.getErrorInfo() + "\n");
-                    sb.append("错误描述:" + location.getLocationDetail() + "\n");
-                }
-                //定位之后的回调时间
-                sb.append("回调时间: " + Utils.formatUTC(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") + "\n");
-
-                //解析定位结果，
-                String result = sb.toString();
-                Log.d("simple  location service", result);
-            } else {
-                Log.d("simple  location service", "定位失败");
-            }
-        }
-    };
+//    AMapLocationListener locationListener = new AMapLocationListener() {
+//        @SuppressLint("LongLogTag")
+//        @Override
+//        public void onLocationChanged(AMapLocation location) {
+//            if (null != location) {
+//
+//                StringBuffer sb = new StringBuffer();
+//                //errCode等于0代表定位成功，其他的为定位失败，具体的可以参照官网定位错误码说明
+//                if(location.getErrorCode() == 0){
+//                    sb.append("定位成功" + "\n");
+//                    sb.append("定位类型: " + location.getLocationType() + "\n");
+//                    sb.append("经    度    : " + location.getLongitude() + "\n");
+//                    sb.append("纬    度    : " + location.getLatitude() + "\n");
+//                    sb.append("精    度    : " + location.getAccuracy() + "米" + "\n");
+//                    sb.append("提供者    : " + location.getProvider() + "\n");
+//
+//                    sb.append("速    度    : " + location.getSpeed() + "米/秒" + "\n");
+//                    sb.append("角    度    : " + location.getBearing() + "\n");
+//                    // 获取当前提供定位服务的卫星个数
+//                    sb.append("星    数    : " + location.getSatellites() + "\n");
+//                    sb.append("国    家    : " + location.getCountry() + "\n");
+//                    sb.append("省            : " + location.getProvince() + "\n");
+//                    sb.append("市            : " + location.getCity() + "\n");
+//                    sb.append("城市编码 : " + location.getCityCode() + "\n");
+//                    sb.append("区            : " + location.getDistrict() + "\n");
+//                    sb.append("区域 码   : " + location.getAdCode() + "\n");
+//                    sb.append("地    址    : " + location.getAddress() + "\n");
+//                    sb.append("兴趣点    : " + location.getPoiName() + "\n");
+//                    //定位完成的时间
+//                    sb.append("定位时间: " + Utils.formatUTC(location.getTime(), "yyyy-MM-dd HH:mm:ss") + "\n");
+//                } else {
+//                    //定位失败
+//                    sb.append("定位失败" + "\n");
+//                    sb.append("错误码:" + location.getErrorCode() + "\n");
+//                    sb.append("错误信息:" + location.getErrorInfo() + "\n");
+//                    sb.append("错误描述:" + location.getLocationDetail() + "\n");
+//                }
+//                //定位之后的回调时间
+//                sb.append("回调时间: " + Utils.formatUTC(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") + "\n");
+//
+//                //解析定位结果，
+//                String result = sb.toString();
+//                Log.d("simple  location service", result);
+//            } else {
+//                Log.d("simple  location service", "定位失败");
+//            }
+//        }
+//    };
 
     private AMapLocationClientOption getDefaultOption(){
         AMapLocationClientOption mOption = new AMapLocationClientOption();
@@ -158,5 +159,10 @@ public class SimpleLocationService extends Service implements LocationListener {
     @Override
     public void onProviderDisabled(String s) {
 
+    }
+
+    @Override
+    public void onLocationChanged(AMapLocation aMapLocation) {
+        Log.d("simple location service", "onLocationChanged - AMapLocation" + aMapLocation.toString());
     }
 }
