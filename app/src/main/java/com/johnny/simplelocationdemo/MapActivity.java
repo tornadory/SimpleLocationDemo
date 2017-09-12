@@ -95,6 +95,7 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
                     StringBuffer buffer = new StringBuffer();
                     buffer.append(aMapLocation.getCountry() + "" + aMapLocation.getProvince()
                             + "" + aMapLocation.getCity() + "" + aMapLocation.getDistrict()
+                            + "" + aMapLocation.getStreet()
                             +"" + aMapLocation.getStreetNum());
                     Toast.makeText(getApplicationContext(), buffer.toString(),Toast.LENGTH_LONG).show();
                     isFirstLoc = false;
