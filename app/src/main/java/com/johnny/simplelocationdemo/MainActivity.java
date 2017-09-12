@@ -1,5 +1,6 @@
 package com.johnny.simplelocationdemo;
 
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -48,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
     private AMapLocationClient locationClient = null;
     private AMapLocationClientOption locationOption = null;
 
+
+    private  SimpleLocationService mSimpleLocationService;
+    Intent mServiceIntent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +82,13 @@ public class MainActivity extends AppCompatActivity {
         Log.d("simplelocationservice", "try to start service");
 
 
+        mSimpleLocationService = new SimpleLocationService(this);
+        mServiceIntent = new Intent(this, mSimpleLocationService.getClass());
+
+        if (!isMyServiceRunning(mSimpleLocationService.getClass())) {
+            startService(mServiceIntent);
+        }
+
         //startService(new Intent(getBaseContext(), SimpleLocationService.class));
 
         //初始化定位
@@ -86,6 +97,18 @@ public class MainActivity extends AppCompatActivity {
         //aMap.moveCamera(new CameraUpdateFactory(new LatLng(120.1, 31.2)));
 
         //startLocation();
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                Log.i ("isMyServiceRunning?", true+"");
+                return true;
+            }
+        }
+        Log.i ("isMyServiceRunning?", false+"");
+        return false;
     }
 
     @Override
