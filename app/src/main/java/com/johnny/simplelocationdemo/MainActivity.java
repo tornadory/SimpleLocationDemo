@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        Log.d("simplelocationservice", "try to start service");
+        System.out.println("simplelocationservice" + "try to start service");
 
 
         mSimpleLocationService = new SimpleLocationService(this);
@@ -103,11 +103,11 @@ public class MainActivity extends AppCompatActivity {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
-                Log.i ("isMyServiceRunning?", true+"");
+                System.out.println("isMyServiceRunning?" + "true");
                 return true;
             }
         }
-        Log.i ("isMyServiceRunning?", false+"");
+        System.out.println ("isMyServiceRunning?" + "false");
         return false;
     }
 
