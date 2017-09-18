@@ -37,7 +37,7 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
+        setContentView(R.layout.activity_map_2);
 
         mapView = (MapView)findViewById(R.id.idMap);
         mapView.onCreate(savedInstanceState);

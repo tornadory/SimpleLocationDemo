@@ -513,4 +513,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    //hide this activity/quit this activity
+    public void hideMe(View View){
+        finish();
+    }
+
+
 }
