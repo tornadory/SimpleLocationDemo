@@ -49,12 +49,12 @@ public class SimpleLocationService extends Service implements LocationSource, AM
 
     AMapLocation location;
 
-    TelephonyManager tm;
+//    TelephonyManager tm;
 
     public SimpleLocationService(Context applicationContext) {
         super();
         System.out.println("SimpleLocationService " + " start simplelocaitonservice constructor");
-//        tm = (TelephonyManager) this.getSystemService(getApplication().TELEPHONY_SERVICE);
+//        tm = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
     }
 
     public SimpleLocationService(){
@@ -164,7 +164,7 @@ public class SimpleLocationService extends Service implements LocationSource, AM
                 jsonData.put("Latitude", location.getLatitude());
                 jsonData.put("Longitude", location.getLongitude());
 
-                URL url = new URL("https://simple-location-demo.herokuapp.com/location");
+                URL url = new URL("https://simple-location-demo.herokuapp.com/addlocation");
 
 
                 HttpURLConnection connection = (HttpURLConnection)url.openConnection();

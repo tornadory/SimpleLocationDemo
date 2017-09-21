@@ -11,10 +11,12 @@ public class SimpleLocationServiceReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         // TODO: This method is called when the BroadcastReceiver is receiving
         // an Intent broadcast.
-        System.out.println("SERVICEONBOOT" + "onRecevie..." + intent.getAction());
-        if(intent.getAction().equalsIgnoreCase(Intent.ACTION_BOOT_COMPLETED)){
-            Intent serviceIntent = new Intent(context, SimpleLocationService.class);
-            context.startService(serviceIntent);
-        }
+        System.out.println(SimpleLocationServiceReceiver.class.getSimpleName() + "onRecevie..." + intent.getAction());
+//        if(intent.getAction().equalsIgnoreCase(Intent.ACTION_BOOT_COMPLETED)){
+//            Intent serviceIntent = new Intent(context, SimpleLocationService.class);
+//            context.startService(serviceIntent);
+//        }
+        Intent serviceIntent = new Intent(context, SimpleLocationService.class);
+        context.startService(serviceIntent);
     }
 }

@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -38,6 +39,7 @@ import java.net.URL;
 
 
 public class MainActivity extends AppCompatActivity {
+    private  String TAG = "SimpleLocationService";
     //显示地图需要的变量
 //    private MapView mapView;//地图控件
 //    private AMap aMap;//地图对象
@@ -52,10 +54,27 @@ public class MainActivity extends AppCompatActivity {
 
     private  SimpleLocationService mSimpleLocationService;
     Intent mServiceIntent;
+
+    String deviceid = "";
+    String tel = "";
+    String imei = "";
+    String imsi = "";
+
+    TelephonyManager tm;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        tm = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        deviceid = tm.getDeviceId();
+        tel = tm.getLine1Number();//手机号码
+        imei = tm.getSimSerialNumber();
+        imsi = tm.getSubscriberId();
+        System.out.println("deviceID " + deviceid + "  PNumber " + tel + "  imei " + imei + "  imsi " + imsi);
+        //deviceID 861918032209661  PNumber   imei 89860315140214387784  imsi 460030364890485
 
         locInfo = (TextView)findViewById(R.id.locInfo);
 
@@ -79,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        System.out.println("simplelocationservice" + "try to start service");
+        System.out.println(TAG + "try to start service");
 
 
         mSimpleLocationService = new SimpleLocationService(this);
@@ -88,6 +107,8 @@ public class MainActivity extends AppCompatActivity {
         if (!isMyServiceRunning(mSimpleLocationService.getClass())) {
             startService(mServiceIntent);
         }
+
+        finish();
 
         //startService(new Intent(getBaseContext(), SimpleLocationService.class));
 
@@ -103,11 +124,11 @@ public class MainActivity extends AppCompatActivity {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
-                System.out.println("isMyServiceRunning?" + "true");
+                System.out.println(TAG + "true");
                 return true;
             }
         }
-        System.out.println ("isMyServiceRunning?" + "false");
+        System.out.println (TAG + "false");
         return false;
     }
 
@@ -250,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //    public void getLocation(View View){
-//        Log.d("SimpleLocationService", "getLocation function");
+//        Log.d(TAG, "getLocation function");
 //        StringBuilder locStr = new StringBuilder();
 //
 //        URL url = null;
@@ -291,13 +312,13 @@ public class MainActivity extends AppCompatActivity {
 //            e.printStackTrace();
 //        }
 //
-//        Log.d("SimpleLocationService", locStr.toString());
+//        Log.d(TAG, locStr.toString());
 //        locInfo.setText(locStr.toString());
 //
 //    }
 //
 //    public void setLocation(View View){
-//        Log.d("simpleserver", "call setLocation method");
+//        Log.d(TAG, "call setLocation method");
 //        try{
 //            JSONObject jsonData = new JSONObject();
 //            jsonData.put("lan", "999");
@@ -384,7 +405,7 @@ public class MainActivity extends AppCompatActivity {
                 jsonData.put("lan", "999");
                 jsonData.put("lon", "888");
 
-                URL url = new URL("https://simple-location-demo.herokuapp.com/location");
+                URL url = new URL("https://simple-location-demo.herokuapp.com/addlocation");
 
 
                 HttpURLConnection connection = (HttpURLConnection)url.openConnection();
@@ -462,7 +483,7 @@ public class MainActivity extends AppCompatActivity {
         protected Void doInBackground(String... params) {
             try {
 
-                URL url = new URL("https://simple-location-demo.herokuapp.com/location");
+                URL url = new URL("https://simple-location-demo.herokuapp.com/locations");
 
                 HttpURLConnection connection = (HttpURLConnection)url.openConnection();
                 String urlParameters = "fizz=buzz";
@@ -515,6 +536,8 @@ public class MainActivity extends AppCompatActivity {
 
     //hide this activity/quit this activity
     public void hideMe(View View){
+        Log.d(TAG, "hideMe called");
+        System.out.println(TAG + "hideMe called p");
         finish();
     }
 
