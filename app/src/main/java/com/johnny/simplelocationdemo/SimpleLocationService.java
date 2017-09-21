@@ -35,6 +35,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class SimpleLocationService extends Service implements LocationSource, AMapLocationListener {
@@ -42,19 +43,11 @@ public class SimpleLocationService extends Service implements LocationSource, AM
     private AMapLocationClientOption mLocationOption = null;
     private OnLocationChangedListener mListener = null;
 
-    String deviceid = "";
-    String tel = "";
-    String imei = "";
-    String imsi = "";
-
     AMapLocation location;
-
-//    TelephonyManager tm;
 
     public SimpleLocationService(Context applicationContext) {
         super();
         System.out.println("SimpleLocationService " + " start simplelocaitonservice constructor");
-//        tm = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
     }
 
     public SimpleLocationService(){
@@ -71,12 +64,6 @@ public class SimpleLocationService extends Service implements LocationSource, AM
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         System.out.println("SimpleLocationService" + " start simplelocaitonservice ");
-
-//        deviceid = tm.getDeviceId();
-//        tel = tm.getLine1Number();//手机号码
-//        imei = tm.getSimSerialNumber();
-//        imsi = tm.getSubscriberId();
-        System.out.println("deviceID " + deviceid + "  PNumber " + tel + "  imei " + imei + "  imsi " + imsi);
         initLoc();
         return START_STICKY;
     }
@@ -108,21 +95,11 @@ public class SimpleLocationService extends Service implements LocationSource, AM
 //                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //                Date date = new Date(aMapLocation.getTime());
 //                df.format(date);
-//                aMapLocation.getAddress();
-//                aMapLocation.getCountry();
-//                aMapLocation.getProvince();
-//                aMapLocation.getCity();
-//                aMapLocation.getDistrict();
-//                aMapLocation.getStreet();
-//                aMapLocation.getStreetNum();
-//                aMapLocation.getCityCode();
-//                aMapLocation.getAdCode();
                 location = aMapLocation;
                 System.out.println("try to calll sendPostRequest");
                 sendPostRequest();
             }else {
                 System.out.println("aMapLocation getErrorCode is not equal to 0");
-                //Toast.makeText(getApplicationContext(), "Location Failed ", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -140,7 +117,6 @@ public class SimpleLocationService extends Service implements LocationSource, AM
 
 
     public void sendPostRequest() {
-//        System.out.println("SendPostRequest .....................................................................................");
         new SimpleLocationService.PostClass(this).execute();
     }
 
@@ -161,8 +137,16 @@ public class SimpleLocationService extends Service implements LocationSource, AM
             try {
 
                 JSONObject jsonData = new JSONObject();
-                jsonData.put("Latitude", location.getLatitude());
-                jsonData.put("Longitude", location.getLongitude());
+                jsonData.put("username","test");
+                jsonData.put("latitude", location.getLatitude());
+                jsonData.put("longitude", location.getLongitude());
+                jsonData.put("address",location.getAddress());
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date = new Date(location.getTime());
+                String time = df.format(date);
+                jsonData.put("time", time);
+                //Calendar.getInstance().getTime().toString()
+
 
                 URL url = new URL("https://simple-location-demo.herokuapp.com/addlocation");
 
