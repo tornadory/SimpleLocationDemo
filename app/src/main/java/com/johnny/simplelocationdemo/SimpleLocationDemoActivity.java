@@ -62,7 +62,6 @@ public class SimpleLocationDemoActivity extends AppCompatActivity {
                 URL url = new URL("https://simple-location-demo.herokuapp.com/users");
 
                 HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-//                String urlParameters = "fizz=buzz";
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("USER-AGENT", "Mozilla/5.0");
                 connection.setRequestProperty("ACCEPT-LANGUAGE", "en-US,en;0.5");
@@ -70,7 +69,6 @@ public class SimpleLocationDemoActivity extends AppCompatActivity {
                 int responseCode = connection.getResponseCode();
 
                 System.out.println("\nSending 'POST' request to URL : " + url);
-//                System.out.println("Post parameters : " + urlParameters);
                 System.out.println("Response Code : " + responseCode);
 
                 final StringBuilder output = new StringBuilder("Request URL " + url);
@@ -87,19 +85,6 @@ public class SimpleLocationDemoActivity extends AppCompatActivity {
 
                 System.out.println("output===============" + responseOutput.toString());
                 result = responseOutput.toString();
-
-                output.append(System.getProperty("line.separator") + "Response " + System.getProperty("line.separator") + System.getProperty("line.separator") + responseOutput.toString());
-
-                /*SimpleLocationDemoActivity.this.runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        progress.dismiss();
-
-                    }
-                });*/
-
-
             } catch (MalformedURLException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
