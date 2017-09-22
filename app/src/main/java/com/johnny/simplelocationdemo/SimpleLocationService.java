@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.AsyncTask;
@@ -43,6 +44,9 @@ public class SimpleLocationService extends Service implements LocationSource, AM
     private AMapLocationClientOption mLocationOption = null;
     private OnLocationChangedListener mListener = null;
 
+    String username = "";
+    String email = "";
+
     AMapLocation location;
 
     public SimpleLocationService(Context applicationContext) {
@@ -64,6 +68,11 @@ public class SimpleLocationService extends Service implements LocationSource, AM
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         System.out.println("SimpleLocationService" + " start simplelocaitonservice ");
+
+        SharedPreferences sharedPre=getSharedPreferences("config", MODE_PRIVATE);
+        username=sharedPre.getString("username", "");
+        email=sharedPre.getString("email", "");
+
         initLoc();
         return START_STICKY;
     }
@@ -137,7 +146,7 @@ public class SimpleLocationService extends Service implements LocationSource, AM
             try {
 
                 JSONObject jsonData = new JSONObject();
-                jsonData.put("username","test");
+                jsonData.put("username", username);
                 jsonData.put("latitude", location.getLatitude());
                 jsonData.put("longitude", location.getLongitude());
                 jsonData.put("address",location.getAddress());

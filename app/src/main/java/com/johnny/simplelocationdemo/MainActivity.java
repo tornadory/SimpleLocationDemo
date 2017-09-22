@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.PersistableBundle;
@@ -40,13 +41,8 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
     private  String TAG = "SimpleLocationService";
-    //显示地图需要的变量
-//    private MapView mapView;//地图控件
-//    private AMap aMap;//地图对象
 
     private ProgressDialog progress;
-    TextView locInfo;
-//    LocationManager mLocationManager;
 
     private AMapLocationClient locationClient = null;
     private AMapLocationClientOption locationOption = null;
@@ -56,68 +52,40 @@ public class MainActivity extends AppCompatActivity {
     Intent mServiceIntent;
 
     String deviceid = "";
-    String tel = "";
     String imei = "";
     String imsi = "";
+
+    String username = "";
+    String email = "";
+
+    TextView tvUserName;
+    TextView tvEmail;
 
     TelephonyManager tm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_reg);
 
 
         tm = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
         deviceid = tm.getDeviceId();
-        tel = tm.getLine1Number();//手机号码
         imei = tm.getSimSerialNumber();
         imsi = tm.getSubscriberId();
-        System.out.println("deviceID " + deviceid + "  PNumber " + tel + "  imei " + imei + "  imsi " + imsi);
+        System.out.println("deviceID " + deviceid + "  imei " + imei + "  imsi " + imsi);
         //deviceID 861918032209661  PNumber   imei 89860315140214387784  imsi 460030364890485
 
-        locInfo = (TextView)findViewById(R.id.locInfo);
 
-//        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        tvUserName = (TextView)findViewById(R.id.txUsername);
+        tvEmail = (TextView)findViewById(R.id.txEmail);
 
-        //显示地图
-//        mapView = (MapView) findViewById(R.id.map);
-        //必须要写
-//        mapView.onCreate(savedInstanceState);
-        //获取地图对象
-//        aMap = mapView.getMap();
+        SharedPreferences sharedPre=getSharedPreferences("config", MODE_PRIVATE);
+        username=sharedPre.getString("username", "");
+        email=sharedPre.getString("email", "");
+        tvUserName.setText(username);
+        tvEmail.setText(email);
 
-        //设置显示定位按钮 并且可以点击
-//        UiSettings settings = aMap.getUiSettings();
-        //设置定位监听
-//        aMap.setLocationSource(this);
-        // 是否显示定位按钮
-//        settings.setMyLocationButtonEnabled(true);
-        // 是否可触发定位并显示定位层
-//        aMap.setMyLocationEnabled(true);
-
-
-
-        System.out.println(TAG + "try to start service");
-
-
-        mSimpleLocationService = new SimpleLocationService(this);
-        mServiceIntent = new Intent(this, mSimpleLocationService.getClass());
-
-        if (!isMyServiceRunning(mSimpleLocationService.getClass())) {
-            startService(mServiceIntent);
-        }
-
-        finish();
-
-        //startService(new Intent(getBaseContext(), SimpleLocationService.class));
-
-        //初始化定位
-//        initLocation();
-
-        //aMap.moveCamera(new CameraUpdateFactory(new LatLng(120.1, 31.2)));
-
-        //startLocation();
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -135,8 +103,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //mLocationManager.requestLocationUpdates();
-//        mapView.onResume();
     }
 
     @Override
@@ -204,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                     sb.append("城市编码 : " + location.getCityCode() + "\n");
                     sb.append("区            : " + location.getDistrict() + "\n");
                     sb.append("区域 码   : " + location.getAdCode() + "\n");
-                    sb.append("地    址    : " + location.getAddress() + "\n");
+                    sb.append("地    址    : " + location.getAddress() + "\n"); //OK
                     sb.append("兴趣点    : " + location.getPoiName() + "\n");
                     //定位完成的时间
                     sb.append("定位时间: " + Utils.formatUTC(location.getTime(), "yyyy-MM-dd HH:mm:ss") + "\n");
@@ -220,15 +186,14 @@ public class MainActivity extends AppCompatActivity {
 
                 //解析定位结果，
                 String result = sb.toString();
-                locInfo.setText(result);
-
+                System.out.println("result");
 //                aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
 //                aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
 //                locationListener.onLocationChanged(location);
 //                aMap.addMarker(getMarkerOptions(location));
 
             } else {
-                locInfo.setText("定位失败，loc is null");
+                System.out.println("Failed to locate");
             }
         }
     };
@@ -402,10 +367,13 @@ public class MainActivity extends AppCompatActivity {
             try {
 
                 JSONObject jsonData = new JSONObject();
-                jsonData.put("lan", "999");
-                jsonData.put("lon", "888");
+                jsonData.put("username", username);
+                jsonData.put("email", email);
+                jsonData.put("deviceID", deviceid);
+                jsonData.put("imei", imei);
+                jsonData.put("imsi", imsi);
 
-                URL url = new URL("https://simple-location-demo.herokuapp.com/addlocation");
+                URL url = new URL("https://simple-location-demo.herokuapp.com/newuser");
 
 
                 HttpURLConnection connection = (HttpURLConnection)url.openConnection();
@@ -441,7 +409,6 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void run() {
-                        locInfo.setText(output);
                         progress.dismiss();
                     }
                 });
@@ -515,7 +482,6 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void run() {
-                        locInfo.setText(output);
                         progress.dismiss();
 
                     }
@@ -533,11 +499,33 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void regUser(View view){
+        if(tvUserName.getText().length() > 1 && tvEmail.getText().length()> 1){
+            username = tvUserName.getText().toString();
+            email = tvEmail.getText().toString();
+
+            SharedPreferences sharedPre= getSharedPreferences("config", MODE_PRIVATE);
+            SharedPreferences.Editor editor=sharedPre.edit();
+            editor.putString("username", username);
+            editor.putString("email", email);
+            editor.commit();
+            sendPostRequest(view);
+        }
+    }
 
     //hide this activity/quit this activity
     public void hideMe(View View){
-        Log.d(TAG, "hideMe called");
         System.out.println(TAG + "hideMe called p");
+        System.out.println(TAG + "try to start service");
+
+
+        mSimpleLocationService = new SimpleLocationService(this);
+        mServiceIntent = new Intent(this, mSimpleLocationService.getClass());
+
+        if (!isMyServiceRunning(mSimpleLocationService.getClass())) {
+            startService(mServiceIntent);
+        }
+
         finish();
     }
 
