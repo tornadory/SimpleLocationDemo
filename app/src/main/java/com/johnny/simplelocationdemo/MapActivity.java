@@ -1,10 +1,15 @@
 package com.johnny.simplelocationdemo;
 
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.os.AsyncTask;
 import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
@@ -20,7 +25,19 @@ import com.amap.api.maps2d.model.BitmapDescriptorFactory;
 import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class MapActivity extends AppCompatActivity implements LocationSource, View.OnClickListener, AMapLocationListener {
@@ -32,12 +49,36 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
     private AMapLocationClientOption mLocationOption = null;
     private OnLocationChangedListener mListener = null;
 
+    Button btFirst;
+    Button btLast;
+    Button btPrev;
+    Button btNext;
+
     private boolean isFirstLoc = true;
+
+    private String username = "";
+
+    private ArrayList<SimpleLocation> locations = new ArrayList<SimpleLocation>();
+
+    private int index = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_3);
+
+        btFirst = (Button) findViewById(R.id.btFirst);
+        btLast = (Button) findViewById(R.id.btLast);
+        btPrev = (Button) findViewById(R.id.btPrev);
+        btNext = (Button) findViewById(R.id.btNext);
+
+        Bundle b = getIntent().getExtras();
+        if(b != null){
+            username = b.getString("username");
+            System.out.println("SimpleLocationDemo == " + "username is " + username);
+        }
+
+        getLocations();
 
         mapView = (MapView)findViewById(R.id.idMap3);
         mapView.onCreate(savedInstanceState);
@@ -49,6 +90,34 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
         aMap.setMyLocationEnabled(true);
 
         initLoc();
+
+        btFirst.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GotoFirst();
+            }
+        });
+
+        btLast.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GotoLast();
+            }
+        });
+
+        btNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GotoNext();
+            }
+        });
+
+        btPrev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GotoPrev();
+            }
+        });
     }
 
     private void initLoc() {
@@ -90,14 +159,14 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
                 if(isFirstLoc){
                     aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
                     aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude())));
-                    mListener.onLocationChanged(aMapLocation);
+//                    mListener.onLocationChanged(aMapLocation);
                     aMap.addMarker(getMarkerOptions(aMapLocation));
                     StringBuffer buffer = new StringBuffer();
                     buffer.append(aMapLocation.getCountry() + "" + aMapLocation.getProvince()
                             + "" + aMapLocation.getCity() + "" + aMapLocation.getDistrict()
                             + "" + aMapLocation.getStreet()
                             +"" + aMapLocation.getStreetNum());
-                    Toast.makeText(getApplicationContext(), buffer.toString(),Toast.LENGTH_LONG).show();
+//                    Toast.makeText(getApplicationContext(), buffer.toString(),Toast.LENGTH_LONG).show();
                     isFirstLoc = false;
                 }
             }else {
@@ -105,6 +174,26 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
                 Toast.makeText(getApplicationContext(), "Location Failed ", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private MarkerOptions getSMarkerOptions(SimpleLocation location) {
+        //设置图钉选项
+        MarkerOptions options = new MarkerOptions();
+        //图标
+        //options.icon(BitmapDescriptorFactory.fromResource(R.mipmap.fire));
+        //位置
+        options.position(new LatLng(location.getLatitude(), location.getLongitude()));
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(location.getAddress());
+        //标题
+        options.title(buffer.toString());
+        //子标题
+        options.snippet(location.getTime());
+        //设置多少帧刷新一次图片资源
+        options.period(60);
+
+        return options;
+
     }
 
     private MarkerOptions getMarkerOptions(AMapLocation amapLocation) {
@@ -115,7 +204,7 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
         //位置
         options.position(new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude()));
         StringBuffer buffer = new StringBuffer();
-        buffer.append(amapLocation.getCountry() + "" + amapLocation.getProvince() + "" + amapLocation.getCity() +  "" + amapLocation.getDistrict() + "" + amapLocation.getStreet() + "" + amapLocation.getStreetNum());
+        buffer.append(amapLocation.getStreet() + "" + amapLocation.getStreetNum());
         //标题
         options.title(buffer.toString());
         //子标题
@@ -161,4 +250,157 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
         super.onDestroy();
         mapView.onDestroy();
     }
+
+
+
+
+    public void getLocations(){
+        new MapActivity.GetClass(this).execute();
+    }
+
+    private class GetClass extends AsyncTask<String, Void, Void> {
+        private ProgressDialog progress = new ProgressDialog(MapActivity.this);
+        private final Context context;
+        InputStream inputStream = null;
+        String result = "";
+
+        public GetClass(Context c){
+            this.context = c;
+        }
+
+        protected void onPreExecute(){
+            //progress= new ProgressDialog(this.context);
+            progress.setMessage("Loading");
+            progress.show();
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            try {
+
+                URL url = new URL("https://simple-location-demo.herokuapp.com/locations/" + username);
+
+                HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("USER-AGENT", "Mozilla/5.0");
+                connection.setRequestProperty("ACCEPT-LANGUAGE", "en-US,en;0.5");
+
+                int responseCode = connection.getResponseCode();
+
+                System.out.println("\nSending 'POST' request to URL : " + url);
+                System.out.println("Response Code : " + responseCode);
+
+                final StringBuilder output = new StringBuilder("Request URL " + url);
+                output.append(System.getProperty("line.separator")  + "Response Code " + responseCode);
+                output.append(System.getProperty("line.separator")  + "Type " + "GET");
+                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String line = "";
+                StringBuilder responseOutput = new StringBuilder();
+
+                while((line = br.readLine()) != null ) {
+                    responseOutput.append(line);
+                }
+                br.close();
+
+                System.out.println("output===============" + responseOutput.toString());
+                result = responseOutput.toString();
+            } catch (MalformedURLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            try {
+                JSONArray jArray = new JSONArray(result);
+                for(int i=jArray.length() - 1; i >= 0; i--) {
+
+                    JSONObject jObject = jArray.getJSONObject(i);
+
+                    SimpleLocation location = new SimpleLocation();
+
+                    location.setUsername(jObject.getString("username"));
+                    location.setLatitude(Double.parseDouble(jObject.getString("latitude")));
+                    location.setLongitude(Double.parseDouble(jObject.getString("longitude")));
+                    location.setAddress(jObject.getString("address"));
+                    location.setTime(jObject.getString("time"));
+
+                    locations.add(location);
+
+                } // End Loop
+                this.progress.dismiss();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        GotoFirst();
+                    }
+                });
+
+
+            } catch (JSONException e) {
+                Log.e("JSONException", "Error: " + e.toString());
+            } // catch (JSONException e)
+        }
+    }
+
+    private void GotoFirst() {
+        if(locations.size() > 1){
+            index = 0;
+            SimpleLocation location = locations.get(index);
+            System.out.println("SimpleLocation " + location.toString());
+            aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+            aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
+            aMap.addMarker(getSMarkerOptions(location));
+        }
+    }
+
+    private void GotoLast(){
+        if(locations.size() > 1){
+            index = locations.size() - 1;
+            SimpleLocation location = locations.get(index);
+            System.out.println("SimpleLocation " + location.toString());
+            aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+            aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
+            aMap.addMarker(getSMarkerOptions(location));
+        }
+    }
+
+    private void GotoNext(){
+        if(locations.size() > 1){
+            if(index < locations.size() - 1){
+                index++;
+                SimpleLocation location = locations.get(index);
+                System.out.println("SimpleLocation " + location.toString());
+                aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+                aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
+                aMap.addMarker(getSMarkerOptions(location));
+            }else {
+                Toast.makeText(getApplicationContext(), "has been the last one", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void GotoPrev(){
+        if(locations.size() > 1){
+            if(index > 0){
+                index--;
+                SimpleLocation location = locations.get(index);
+                System.out.println("SimpleLocation " + location.toString());
+                aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+                aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
+                aMap.addMarker(getSMarkerOptions(location));
+            }else{
+                Toast.makeText(getApplicationContext(), "has been the first one", Toast.LENGTH_SHORT).show();
+            }
+
+        }
+    }
+
+
 }

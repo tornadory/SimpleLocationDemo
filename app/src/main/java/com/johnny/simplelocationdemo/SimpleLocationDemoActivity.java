@@ -2,10 +2,17 @@ package com.johnny.simplelocationdemo;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ListViewCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +25,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 
 /**
@@ -25,14 +33,43 @@ import java.net.URL;
  */
 
 public class SimpleLocationDemoActivity extends AppCompatActivity {
+    private ListView userListView;
+    private ArrayAdapter<String> listAdapter;
+
+    //private String[] users;
+    private ArrayList<String> users = new ArrayList<String>();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_reg);
+        setContentView(R.layout.activity_user_list);
+
+        userListView = (ListView)findViewById(R.id.simpleListView);
+
+        users.add("t2");
+        users.add("t3");
+
+        users.clear();
 
         getUsers();
+
+//        listAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, android.R.id.text1, users);
+//        userListView.setAdapter(listAdapter);
+
+        userListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                int itemPostion = i;
+                String itemValue = (String)userListView.getItemAtPosition(itemPostion);
+                Intent mapIntent = new Intent(SimpleLocationDemoActivity.this, MapActivity.class);
+                Bundle b = new Bundle();
+                b.putString("username", itemValue);
+                mapIntent.putExtras(b);
+                startActivity(mapIntent);
+            }
+        });
+
     }
 
     public void getUsers(){
@@ -105,12 +142,28 @@ public class SimpleLocationDemoActivity extends AppCompatActivity {
 
                     String username = jObject.getString("username");
                     String email = jObject.getString("email");
-                    int deviceid = jObject.getInt("deviceID");
+                    String deviceid = jObject.getString("deviceID");
+
+                    users.add(username);
 
                     System.out.println("SimpleLocationDemo " + "UserName:" + username + email + deviceid);
 
                 } // End Loop
                 this.progress.dismiss();
+
+                System.out.println("users " + users.toString());
+
+
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        listAdapter = new ArrayAdapter<String>(SimpleLocationDemoActivity.this,android.R.layout.simple_list_item_1, android.R.id.text1, users);
+
+                        userListView.setAdapter(listAdapter);
+                    }
+                });
+
             } catch (JSONException e) {
                 Log.e("JSONException", "Error: " + e.toString());
             } // catch (JSONException e)

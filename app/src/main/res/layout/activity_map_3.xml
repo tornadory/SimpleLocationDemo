@@ -9,13 +9,6 @@
 
     </com.amap.api.maps2d.MapView>
 
-    <!--<fragment xmlns:map="http://schemas.android.com/apk/res-auto"-->
-        <!--android:id="@+id/map"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_weight="1"-->
-        <!--android:scrollbars="vertical"-->
-        <!--class="com.amap.api.maps2d.MapView"/>-->
 
     <RadioGroup
         android:id="@+id/radio_group_list_selector"
@@ -26,12 +19,12 @@
         android:padding="4dp" >
 
         <Button
-            android:id="@+id/radioPopular"
+            android:id="@+id/btLast"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:text="Popular"
+            android:layout_weight="1"
             android:gravity="center_horizontal|center_vertical"
-            android:layout_weight="1"/>
+            android:text="Last" />
         <View
             android:id="@+id/vline"
             android:layout_width="1dip"
@@ -39,12 +32,12 @@
             android:background="#aaa" />
 
         <Button
-            android:id="@+id/radioAZ"
+            android:id="@+id/btNext"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:gravity="center_horizontal|center_vertical"
-            android:text="RadioAZ"
-            android:layout_weight="1" />
+            android:text="Next" />
 
         <View
             android:id="@+id/vline2"
@@ -53,12 +46,12 @@
             android:background="#aaa" />
 
         <Button
-            android:id="@+id/radioCategory"
+            android:id="@+id/btPrev"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:gravity="center_horizontal|center_vertical"
-            android:text="Category"
-            android:layout_weight="1" />
+            android:text="Prev" />
         <View
             android:id="@+id/VerticalLine"
             android:layout_width="1dip"
@@ -66,11 +59,11 @@
             android:background="#aaa" />
 
         <Button
-            android:id="@+id/radioNearBy"
+            android:id="@+id/btFirst"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:gravity="center_horizontal|center_vertical"
-            android:text="NearBy"
-            android:layout_weight="1" />
+            android:text="First" />
     </RadioGroup>
 </FrameLayout>
