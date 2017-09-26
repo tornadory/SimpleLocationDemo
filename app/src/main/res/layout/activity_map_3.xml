@@ -24,7 +24,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal|center_vertical"
-            android:text="Last" />
+            android:text="最近" />
         <View
             android:id="@+id/vline"
             android:layout_width="1dip"
@@ -37,7 +37,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal|center_vertical"
-            android:text="Next" />
+            android:text="下一个" />
 
         <View
             android:id="@+id/vline2"
@@ -51,7 +51,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal|center_vertical"
-            android:text="Prev" />
+            android:text="上一个" />
         <View
             android:id="@+id/VerticalLine"
             android:layout_width="1dip"
@@ -64,6 +64,6 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal|center_vertical"
-            android:text="First" />
+            android:text="最早" />
     </RadioGroup>
 </FrameLayout>

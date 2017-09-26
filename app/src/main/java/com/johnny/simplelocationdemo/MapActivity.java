@@ -23,6 +23,7 @@ import com.amap.api.maps2d.MapView;
 import com.amap.api.maps2d.UiSettings;
 import com.amap.api.maps2d.model.BitmapDescriptorFactory;
 import com.amap.api.maps2d.model.LatLng;
+import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
 
 import org.json.JSONArray;
@@ -36,18 +37,21 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
-public class MapActivity extends AppCompatActivity implements LocationSource, View.OnClickListener, AMapLocationListener {
+public class MapActivity extends AppCompatActivity implements View.OnClickListener {
 
     private MapView mapView;
     private AMap aMap;
 
     private AMapLocationClient mLocationClient = null;
     private AMapLocationClientOption mLocationOption = null;
-    private OnLocationChangedListener mListener = null;
+    //private OnLocationChangedListener mListener = null;
 
     Button btFirst;
     Button btLast;
@@ -62,6 +66,8 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
 
     private int index = 0;
 
+    Marker localMarker = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +81,7 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
         Bundle b = getIntent().getExtras();
         if(b != null){
             username = b.getString("username");
-            System.out.println("SimpleLocationDemo == " + "username is " + username);
+            //System.out.println("SimpleLocationDemo == " + "username is " + username);
         }
 
         getLocations();
@@ -85,11 +91,11 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
         aMap = mapView.getMap();
 
         UiSettings settings = aMap.getUiSettings();
-        aMap.setLocationSource(this);
+        //aMap.setLocationSource(this);
         settings.setMyLocationButtonEnabled(true);
         aMap.setMyLocationEnabled(true);
 
-        initLoc();
+        //initLoc();
 
         btFirst.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,61 +126,61 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
         });
     }
 
-    private void initLoc() {
-        mLocationClient = new AMapLocationClient(getApplicationContext());
-        mLocationClient.setLocationListener(this);
-        mLocationOption = new AMapLocationClientOption();
-        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-        mLocationOption.setNeedAddress(true);
-        mLocationClient.setLocationOption(mLocationOption);
-        mLocationClient.startLocation();
-    }
+//    private void initLoc() {
+//        mLocationClient = new AMapLocationClient(getApplicationContext());
+//        mLocationClient.setLocationListener(this);
+//        mLocationOption = new AMapLocationClientOption();
+//        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+//        mLocationOption.setNeedAddress(true);
+//        mLocationClient.setLocationOption(mLocationOption);
+//        mLocationClient.startLocation();
+//    }
 
     @Override
     public void onClick(View view) {
 
     }
 
-    @Override
-    public void onLocationChanged(AMapLocation aMapLocation) {
-        if(aMapLocation != null){
-            if(aMapLocation.getErrorCode() == 0){
-                aMapLocation.getLocationType();
-                aMapLocation.getLatitude();
-                aMapLocation.getLongitude();
-                aMapLocation.getAccuracy();
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date date = new Date(aMapLocation.getTime());
-                df.format(date);
-                aMapLocation.getAddress();
-                aMapLocation.getCountry();
-                aMapLocation.getProvince();
-                aMapLocation.getCity();
-                aMapLocation.getDistrict();
-                aMapLocation.getStreet();
-                aMapLocation.getStreetNum();
-                aMapLocation.getCityCode();
-                aMapLocation.getAdCode();
-
-                if(isFirstLoc){
-                    aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
-                    aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude())));
-//                    mListener.onLocationChanged(aMapLocation);
-                    aMap.addMarker(getMarkerOptions(aMapLocation));
-                    StringBuffer buffer = new StringBuffer();
-                    buffer.append(aMapLocation.getCountry() + "" + aMapLocation.getProvince()
-                            + "" + aMapLocation.getCity() + "" + aMapLocation.getDistrict()
-                            + "" + aMapLocation.getStreet()
-                            +"" + aMapLocation.getStreetNum());
-//                    Toast.makeText(getApplicationContext(), buffer.toString(),Toast.LENGTH_LONG).show();
-                    isFirstLoc = false;
-                }
-            }else {
-                Log.e("AmapError", "location Error, ErrorCode:" + aMapLocation.getErrorCode());
-                Toast.makeText(getApplicationContext(), "Location Failed ", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
+//    @Override
+//    public void onLocationChanged(AMapLocation aMapLocation) {
+//        if(aMapLocation != null){
+//            if(aMapLocation.getErrorCode() == 0){
+////                aMapLocation.getLocationType();
+////                aMapLocation.getLatitude();
+////                aMapLocation.getLongitude();
+////                aMapLocation.getAccuracy();
+////                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+////                Date date = new Date(aMapLocation.getTime());
+////                df.format(date);
+////                aMapLocation.getAddress();
+////                aMapLocation.getCountry();
+////                aMapLocation.getProvince();
+////                aMapLocation.getCity();
+////                aMapLocation.getDistrict();
+////                aMapLocation.getStreet();
+////                aMapLocation.getStreetNum();
+////                aMapLocation.getCityCode();
+////                aMapLocation.getAdCode();
+//
+//                if(isFirstLoc){
+//                    aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+//                    aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude())));
+////                    mListener.onLocationChanged(aMapLocation);
+//                    aMap.addMarker(getMarkerOptions(aMapLocation));
+////                    StringBuffer buffer = new StringBuffer();
+////                    buffer.append(aMapLocation.getCountry() + "" + aMapLocation.getProvince()
+////                            + "" + aMapLocation.getCity() + "" + aMapLocation.getDistrict()
+////                            + "" + aMapLocation.getStreet()
+////                            +"" + aMapLocation.getStreetNum());
+////                    Toast.makeText(getApplicationContext(), buffer.toString(),Toast.LENGTH_LONG).show();
+//                    isFirstLoc = false;
+//                }
+//            }else {
+//                Log.e("AmapError", "location Error, ErrorCode:" + aMapLocation.getErrorCode());
+//                //Toast.makeText(getApplicationContext(), "Location Failed ", Toast.LENGTH_LONG).show();
+//            }
+//        }
+//    }
 
     private MarkerOptions getSMarkerOptions(SimpleLocation location) {
         //设置图钉选项
@@ -208,7 +214,7 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
         //标题
         options.title(buffer.toString());
         //子标题
-        options.snippet("这里好火");
+        options.snippet("YOU ARE HERE");
         //设置多少帧刷新一次图片资源
         options.period(60);
 
@@ -216,16 +222,16 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
 
     }
 
-
-    @Override
-    public void activate(OnLocationChangedListener onLocationChangedListener) {
-        mListener = onLocationChangedListener;
-    }
-
-    @Override
-    public void deactivate() {
-        mListener = null;
-    }
+//
+//    @Override
+//    public void activate(OnLocationChangedListener onLocationChangedListener) {
+//        mListener = onLocationChangedListener;
+//    }
+//
+//    @Override
+//    public void deactivate() {
+//        mListener = null;
+//    }
 
     @Override
     protected void onResume() {
@@ -287,12 +293,12 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
 
                 int responseCode = connection.getResponseCode();
 
-                System.out.println("\nSending 'POST' request to URL : " + url);
-                System.out.println("Response Code : " + responseCode);
+                //System.out.println("\nSending 'POST' request to URL : " + url);
+                //System.out.println("Response Code : " + responseCode);
 
-                final StringBuilder output = new StringBuilder("Request URL " + url);
-                output.append(System.getProperty("line.separator")  + "Response Code " + responseCode);
-                output.append(System.getProperty("line.separator")  + "Type " + "GET");
+                //final StringBuilder output = new StringBuilder("Request URL " + url);
+                //output.append(System.getProperty("line.separator")  + "Response Code " + responseCode);
+                //output.append(System.getProperty("line.separator")  + "Type " + "GET");
                 BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String line = "";
                 StringBuilder responseOutput = new StringBuilder();
@@ -302,7 +308,7 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
                 }
                 br.close();
 
-                System.out.println("output===============" + responseOutput.toString());
+                //System.out.println("output===============" + responseOutput.toString());
                 result = responseOutput.toString();
             } catch (MalformedURLException e) {
                 // TODO Auto-generated catch block
@@ -318,27 +324,46 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
         protected void onPostExecute(Void aVoid) {
             try {
                 JSONArray jArray = new JSONArray(result);
-                for(int i=jArray.length() - 1; i >= 0; i--) {
+                if(jArray.length() > 0)
+                    for(int i=jArray.length() - 1; i >= 0; i--) {
 
-                    JSONObject jObject = jArray.getJSONObject(i);
+                        JSONObject jObject = jArray.getJSONObject(i);
 
-                    SimpleLocation location = new SimpleLocation();
+                        SimpleLocation location = new SimpleLocation();
 
-                    location.setUsername(jObject.getString("username"));
-                    location.setLatitude(Double.parseDouble(jObject.getString("latitude")));
-                    location.setLongitude(Double.parseDouble(jObject.getString("longitude")));
-                    location.setAddress(jObject.getString("address"));
-                    location.setTime(jObject.getString("time"));
+                        location.setUsername(jObject.getString("username"));
+                        location.setLatitude(Double.parseDouble(jObject.getString("latitude")));
+                        location.setLongitude(Double.parseDouble(jObject.getString("longitude")));
+                        location.setAddress(jObject.getString("address"));
+                        location.setTime(jObject.getString("time"));
 
-                    locations.add(location);
+                        locations.add(location);
 
-                } // End Loop
+                    } // End Loop
                 this.progress.dismiss();
+
+                if(locations.size() > 1){
+                    Collections.sort(locations, new Comparator<SimpleLocation>(){
+
+                        @Override
+                        public int compare(SimpleLocation l1, SimpleLocation l2) {
+                            try{
+                                return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(l1.time).compareTo(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(l2.time));
+                            }catch (ParseException e){
+                                return 0;
+                            }
+                        }
+                    });
+
+//                    System.out.println("first data " + locations.get(0).time);
+//                    System.out.println("last data " + locations.get(locations.size() -1 ).time);
+                }
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        GotoFirst();
+                        if(locations.size() > 0)
+                            GotoLast();
                     }
                 });
 
@@ -353,10 +378,11 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
         if(locations.size() > 1){
             index = 0;
             SimpleLocation location = locations.get(index);
-            System.out.println("SimpleLocation " + location.toString());
+            //System.out.println("SimpleLocation " + location.toString());
             aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
             aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
-            aMap.addMarker(getSMarkerOptions(location));
+            localMarker = aMap.addMarker(getSMarkerOptions(location));
+            localMarker.showInfoWindow();
         }
     }
 
@@ -364,10 +390,11 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
         if(locations.size() > 1){
             index = locations.size() - 1;
             SimpleLocation location = locations.get(index);
-            System.out.println("SimpleLocation " + location.toString());
+            //System.out.println("SimpleLocation " + location.toString());
             aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
             aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
-            aMap.addMarker(getSMarkerOptions(location));
+            localMarker = aMap.addMarker(getSMarkerOptions(location));
+            localMarker.showInfoWindow();
         }
     }
 
@@ -376,10 +403,11 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
             if(index < locations.size() - 1){
                 index++;
                 SimpleLocation location = locations.get(index);
-                System.out.println("SimpleLocation " + location.toString());
+                //System.out.println("SimpleLocation " + location.toString());
                 aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
                 aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
-                aMap.addMarker(getSMarkerOptions(location));
+                localMarker = aMap.addMarker(getSMarkerOptions(location));
+                localMarker.showInfoWindow();
             }else {
                 Toast.makeText(getApplicationContext(), "has been the last one", Toast.LENGTH_SHORT).show();
             }
@@ -391,10 +419,11 @@ public class MapActivity extends AppCompatActivity implements LocationSource, Vi
             if(index > 0){
                 index--;
                 SimpleLocation location = locations.get(index);
-                System.out.println("SimpleLocation " + location.toString());
+                //System.out.println("SimpleLocation " + location.toString());
                 aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
                 aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
-                aMap.addMarker(getSMarkerOptions(location));
+                localMarker = aMap.addMarker(getSMarkerOptions(location));
+                localMarker.showInfoWindow();
             }else{
                 Toast.makeText(getApplicationContext(), "has been the first one", Toast.LENGTH_SHORT).show();
             }
